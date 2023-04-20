@@ -10,10 +10,10 @@ global globalFID
 app.secret_key = 'thisisdatabase'
 
 import snowflake.connector
-PASSWORD = 'Sethu@4427'
+PASSWORD = 'Hinfotech@123'
 WAREHOUSE = 'COMPUTE_WH'
-USER ='SETHURAMAN'
-ACCOUNT ='jm53657.ap-southeast-1'
+USER ='HINFOTECH'
+ACCOUNT ='xo63848.ap-south-1'
 DATABASE ='IOT'
 SCHEMA ='IOT'
 
