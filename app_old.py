@@ -129,6 +129,7 @@ def product_details():
         print(results)
         return render_template('product_details.html',rows=mytuple)
 
+
 @app.route('/purchaser_details',methods = ['POST', 'GET'])
 def purchaser_details():
         query = ("select * from customer")
@@ -137,21 +138,34 @@ def purchaser_details():
         curs.get_results_from_sfqid(query_id)
         results = curs.fetchall()
         return render_template('purchaser_details.html',rows=results,)
-
-@app.route("/create_purchaser",methods=['GET','POST'])
+@app.route("/create_purchaser", methods=['GET', 'POST'])
 def create_purchaser():
-    if request.method=='POST':
-        name=request.form['name']
-        email=request.form['email']
-        address=request.form['address']
-        phone=request.form['phone']
-        curs=conns.cursor()
-        sql="INSERT INTO customer(User_Name,Email_id,User_Address,Telephone) values (%s,%s,%s,%s)"
-        value = (name,email,address,phone)
-        curs = conns.cursor().execute(sql,value)
-        conns.commit()
-        flash('customer added flak flaskrsuccessfully','success')
-        return redirect(url_for("purchaser_details"))
+    if request.method == 'POST':
+        name = request.form['name']
+        email = request.form['email']
+        address = request.form['address']
+        phone = request.form['phone']
+
+        # Check if any required field is empty
+        if not name or not email or not address or not phone:
+            flash('Please fill out all required fields', 'error')
+        else:
+            # Check if email already exists
+            curs = conns.cursor()
+            check_sql = "SELECT * FROM customer WHERE Email_id = %s"
+            curs.execute(check_sql, (email,))
+            existing_customer = curs.fetchone()
+
+            if existing_customer:
+                flash('Provided email already exists', 'error')
+            else:
+                sql = "INSERT INTO customer(User_Name, Email_id, User_Address, Telephone) VALUES (%s, %s, %s, %s)"
+                value = (name, email, address, phone)
+                curs.execute(sql, value)
+                conns.commit()
+                flash('Purasher added successfully', 'success')
+                return redirect(url_for("purchaser_details"))
+
     return render_template("create_purchaser.html")
 
 
@@ -661,15 +675,22 @@ def delete_shop(id):
 @app.route('/adminsignup',methods=['GET','POST'])
 def adminsignup():
    return render_template('admin_signup.html')
+
+
 @app.route('/logout')
 def logout():
     session.pop('username', None)
     return redirect(url_for('Homepage'))  # Redirect to the home page 
+
+
 @app.route('/get_data')
 def get_data():
     curs = conns.cursor()
     curs.execute("SELECT COUNT(*) FROM purchaser1")
     num_purchasers = curs.fetchone()[0]
+    
+    curs.execute("SELECT COUNT(*) FROM product1")
+    num_products = curs.fetchone()[0]
 
     curs.execute("SELECT SUM(AVAILABLE_QTY) FROM product1")
     total_quantity = curs.fetchone()[0]
@@ -679,10 +700,63 @@ def get_data():
 
     data = {
         'num_purchasers': num_purchasers,
-        'total_quantity': total_quantity,
+        'num_products':num_products,
+        'total_quantity': total_quantity,        
     }
     print(num_purchasers)
     print(total_quantity)
     return jsonify(data)
+
+
+@app.route('/edit_product/<int:id>', methods=['POST', 'GET'])
+def edit_product(id):
+    if request.method == 'POST':
+        productname = request.form['product_name']
+        available_qty = request.form['available_qty']
+        price = request.form['price']
+        # Add other product attributes as needed
+        curs = conns.cursor()
+        task = "UPDATE product1 SET product_name = %s, available_qty = %s, price = %s WHERE id = %s"
+        value = (productname, available_qty, price, id)
+        curs.execute(task, value)
+        conns.commit()
+        flash('Product updated successfully', 'success')
+        return redirect(url_for('product_details'))
+    
+    if request.method == 'GET':
+        curs = conns.cursor()
+        sql = "SELECT * FROM product1 WHERE id = %s"
+        curs.execute(sql, [id])
+        results = curs.fetchone()
+        print("---------------test-----------")
+        print(results)
+        return render_template("edit_product.html", results=results)
+    
+@app.route('/delete_product/<string:id>',methods = ['POST', 'GET'])  
+def delete_product(id):
+    curs=conns.cursor()
+    sql="delete from product1 where Id=%s"
+    curs = conns.cursor().execute(sql,[id])
+    flash('Product deleted successfully','success')
+    return redirect(url_for("product_details"))
+
+@app.route('/add_product', methods=['POST', 'GET'])
+def add_product():
+    if request.method == 'POST':
+        product_name = request.form['product_name']
+        available_qty = request.form['available_qty']
+        price = request.form['price']
+            
+        curs = conns.cursor()
+        task = "INSERT INTO product1 (product_name, available_qty, price) VALUES (%s, %s, %s)"
+        values = (product_name, available_qty, price)
+        curs.execute(task, values)
+        conns.commit()
+        
+            
+        response = {'status': 'success'}
+        print(product_name,available_qty,price)
+        return jsonify(response)
+    return render_template("add_product.html")
 if __name__ == '__main__':
     app.run(use_reloader=True)
