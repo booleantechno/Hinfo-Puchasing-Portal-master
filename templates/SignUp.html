@@ -3,6 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <title>Purchaser detail Portal</title>
+    <style>
+        #Add:checked ~ .Add{
+            display: block;
+        }
+        #Remove:checked ~ .Remove{
+            display: block;
+        }
+    </style>
 </head>
 <body background="\static\users.png">
 <form style="width:450px; margin-left:40%;margin-top:3%; background-color: rgba(245, 245, 245, 0.9);" action = "http://localhost:5000/signup" method = "post">
@@ -40,13 +48,25 @@
 
         <input type="radio" name="action" value="Add" id="Add"><label for="Add">Add</label>
         <input type="radio" name="action" value="Remove" id="Remove"><label for="Remove">Remove</label>
-    <h3>Enter Purchaser Name</h3>
-         <input type="text" name="Name" placeholder="Enter Purchaser name">
-            <h3>Enter Purchaser ID</h3>
-         <input type="text" name="UserName" placeholder="Enter a Purchaser ID">
-        <h3>Email Id</h3>
-         <input type="text" name="email" placeholder ="Enter a Purchaser email Id">
+        <div class="Add" hidden>
+        <h3>Enter Rfid id</h3>
+         <input type="text" name="Name" placeholder="Enter User id">
+            <h3>Enter User name</h3>
+         <input type="text" name="UserName" placeholder="Enter User name">
+        <h3>Enter Email id</h3>
+         <input type="text" name="email" placeholder ="Enter email id">
+         <h3>Enter User address</h3>
+         <input type="text" name="Name" placeholder="Enter User address">
+         <h3>Enter Telephone No</h3>
+         <input type="text" name="Name" placeholder="Enter Telephone">
          <br> <br> 
+        </div>
+        <div class="Remove" hidden> 
+            <h3>Enter Purchaser Name</h3>
+             <input type="text" name="Name" placeholder="Enter Purchaser name">
+                <h3>Enter Purchaser ID</h3>
+             <input type="text" name="UserName" placeholder="Enter a Purchaser ID">
+        </div>
     </div>
     
     <br> <button type="submit" name="submit" class="submit" value="submit">Submit</button> <br>
